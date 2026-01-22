@@ -3,12 +3,21 @@ use std::env;
 use std::fs;
 
 fn main() {
+    // parse
+    let mut bytes = false;
+    let mut chars = false;
+    let mut lines = false;
+    let mut max_lines = false;
+    let mut words = false;
+
+
     // get file path from cl arg
-    let arg_1: String = env::args().nth(1).unwrap();
+    let mut files = Vec::new();
+    let path: String = env::args().nth(1).unwrap();
 
     // check if character flags - otherwise try to read file
     // try to iter through args
-    for arg in env::args() {
+    for arg in env::args().skip(1) {
         if arg.starts_with('-') {
             if arg.contains("c"){ 
                 let bytes = true;
@@ -38,28 +47,25 @@ fn main() {
                     let words = true;
                 }
             }
-
+            // if not flag, should be file
         } else {
-            // no char flags
-            // Read into string, unwrap panics if empty
-            let string: String = fs::read_to_string(&arg_1).unwrap();
+            files.push(arg);
+        }
 
-            // Split into vector of string slices
-            let words: Vec<&str> = string.split_whitespace().collect();
-            let w_count = words.len();
+        for filepath in files {
+            let cont = fs::read_to_string(&filepath).unwrap();
 
-            // count newlines
-            let mut l_count = 0;
-            for _line in string.lines() {
-                l_count += 1;
-            }
+            // calculate counts
+            let b_counts = cont.bytes().count();
+            let l_count = cont.lines().count();
+            let w_count = cont.words().count();
+            let c_count = cont.chars().count();
+            //let ml_length = cont...
+        }        
 
-            // count bytes
-            let mut b_count = 0;
-            for _byte in string.bytes() {
-                b_count += 1;
-            }
-            println!(" {} {} {} {}", l_count, w_count, b_count, arg_1);
+        //base case no flags
+        if !bytes && !chars && !lines && !max_lines && !words {
+            println!(" {} {} {} {}", l_count, w_count, b_count, path);
         }
     }
 }
