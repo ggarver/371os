@@ -8,7 +8,6 @@ fn main() {
     let mut lines = false;
     let mut max_l = false;
     let mut words = false;
-    let mut file_f = false;
     let mut files = Vec::new();
 
     // check if character flags - otherwise try to read file
@@ -34,9 +33,6 @@ fn main() {
                     chars = true;
                 } else if arg == "--lines"{
                     lines = true;
-                    // This one needs to be fixed
-                } else if arg == "--files0-from=F"{
-                    file_f = true;
                 } else if arg == "--max-line-length"{
                     max_l = true;
                 } else if arg == "--words"{
@@ -58,8 +54,17 @@ fn main() {
         let c_count = cont.chars().count();
         let w_count = cont.split_whitespace().count();
 
-        // let ml_length = cont...
-
+        let ml_length = cont.lines().map(|line| {line.chars().map(|c| {
+            if c == '\t' {
+                8 // tab is 8
+            } else {
+                1
+            }
+        })
+        .sum::<usize>() // sum length
+        })
+        .max()
+            .unwrap_or(0); // else zero
 
         // print for char flags
         if bytes || chars || lines || max_l || words {
@@ -76,9 +81,9 @@ fn main() {
                 println!("{}", b_count);
             }
             if max_l {
-                println!("NA");
+                println!("{}", ml_length);
             }
-            println!("{}", filepath);
+            println!("{}\n", filepath);
         } else {
             println!(" {} {} {} {}", l_count, w_count, b_count, filepath);
 
