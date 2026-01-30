@@ -1,6 +1,6 @@
 // unsafe split at mut in lib.rs 
 
-pub fn unsafe_split_at_mut(values: &mut [i32], mid: usize) -> (&mut [i32], &mut [i32]) {
+pub fn split_at_mut(values: &mut [i32], mid: usize) -> (&mut [i32], &mut [i32]) {
 
     let ptr = values.as_mut_ptr();
     let mid = std::cmp::min(values.len(), mid);
