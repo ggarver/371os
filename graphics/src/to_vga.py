@@ -38,8 +38,8 @@ def download(inp):
 
 
 def main():
-    # download(inp = input("enter img url:"))
-    download(inp = "https://cd-rs.github.io/os/img/rainbow.jpg")
+    download(inp = input("enter img url:"))
+    # download(inp = "https://cd-rs.github.io/os/img/rainbow.jpg")
 
 
 
