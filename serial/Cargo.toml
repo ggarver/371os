@@ -8,6 +8,11 @@ bootloader = "0.9"
 x86_64 = "0.14.2"
 uart_16550 = "0.2.0"
 
+[[bin]]
+name = "osirs"
+test = true
+bench = false
+
 [package.metadata.bootimage]
 test-args = ["-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "stdio"]
-
+test-timeout = 1
