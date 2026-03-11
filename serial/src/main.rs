@@ -6,6 +6,21 @@
 mod vga;
 mod serial;
 
+// make exit codes for Qemu 
+pub enum QemuExitCode {
+    Success = 0x10,
+    Failed = 0x11,
+}
+
+pub fn exit_qemu(exit_code: QemuExitCode) {
+    use x86_64::instructions::port::Port;
+
+    unsafe{
+        let mut port = Port::new(0xf4);
+        port.write(exit_code as u32);
+    }
+}
+
 #[unsafe(no_mangle)]
 pub extern "C" fn _start() -> ! {
     println!("Hello World{}", "!");
@@ -16,6 +31,8 @@ pub extern "C" fn _start() -> ! {
     loop {}
 }
 
+// Panic when not test 
+#[cfg(not(test))]
 #[panic_handler]
 #[allow(unconditional_recursion)]
 fn panic(info: &core::panic::PanicInfo) -> ! {
@@ -23,6 +40,18 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
     loop {}
     // panic(info)
 }
+
+// Panic when test 
+#[cfg(test)]
+#[panic_handler]
+fn panic(info: &core::panic::PanicInfo) -> ! {
+    serial_println!( "[failed]");
+    serial_print!("\n{}\n", info);
+    exit_qemu(QemuExitCode::Failed);
+    serial_print!("\n");
+    loop {}
+}
+
 
 fn t0(){
     // test simple assertion 
@@ -32,13 +61,14 @@ fn t0(){
     println!("[ok]");
 }
 
+// should fail 
 fn t1(){
-    print!("test");
+    assert_eq!(1,2);
 }
 
 #[cfg(test)]
 fn test_runner(_tests: &[&dyn Fn()]) {
-    let fs = [t0, t1]; // _ex are supposed to be written tests 
+    let fs = [t0, t1]; 
     for i in 0..fs.len() {
         serial_print!("Running test case {:0x}...", i);
         fs[i]();
