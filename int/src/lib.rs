@@ -2,9 +2,18 @@
 #![no_std]
 #![feature(custom_test_frameworks)]
 #![test_runner(_test_runner)]
+#![reexport_test_harness_main = "test_main"]
 
 pub mod vga;
 pub mod serial;
+
+
+#[cfg(test)]
+#[unsafe(no_mangle)]
+pub extern "C" fn _start() -> ! {
+    test_main();
+    loop {}
+}
 
 
 // make exit codes for Qemu 
@@ -25,29 +34,37 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
 
 
 // Testing the VGA buffer 
+#[test_case]
 fn test_println(){
-    println!("test println output");
+    println!("A");
+    // peek at VGA buff to make - FIRST slot 
+    let val: u8 = unsafe { *(0xb8000 as *const u8) };
+    assert_eq!(val, b'A');
 }
 
 #[test_case]
 fn linewrap(){
-    for _ in 0..100{
-        println!("linewrap");
-    }
+    println!("{:081x}", 1);
+    println!("{:x}", 2);
+    // 80 columns per row, always *2 because char byte
+    // check if wrap line0 to line1
+    let l1_val = unsafe {*((0xb8000 + 160 * 2) as *const u8) };
+    // use byte literal
+    assert_eq!(l1_val, b'2');
 }
+
+//#[test_case]
+//fn fill_vga(){
+//    for _ in 0..400{
+//        println!("beginning");
+//    }
+//    for _ in 400..600{
+//        println!("end");
+//    }
+// 
 
 #[test_case]
-fn fill_vga(){
-    for _ in 0..400{
-        println!("beginning");
-    }
-    for _ in 400..600{
-        println!("end");
-    }
-}
-
-
-fn _t0(){
+fn simple_assert(){
     // test simple assertion 
     println!("test_1");
     print!("assertion...");
@@ -56,10 +73,10 @@ fn _t0(){
 }
 
 // should fail 
-fn _t1(){
+#[test_case]
+fn should_fail(){
     assert_eq!(1,2);
 }
-
 
 
 // Panic when not test 
@@ -84,15 +101,13 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
 }
 
 
-#[cfg(test)]
-fn _test_runner(_tests: &[&dyn Fn()]) {
-    let fs = [_t0, _t1, test_println]; 
-    for i in 0..fs.len() {
-        serial_print!("Running test case {:0x}...", i);
-        fs[i]();
+pub fn _test_runner(tests: &[&dyn Fn()]) {
+    for (i, test) in tests.iter().enumerate() {
+        serial_print!("Running test {:0x}...", i);
+        test();
         serial_println!(" [pass]");
     }
-    unsafe { x86_64::instructions::port::Port::new(0xf4).write(0xAu32) }
+    exit_qemu(QemuExitCode::Success);
 }
 
 

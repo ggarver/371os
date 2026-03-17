@@ -11,7 +11,7 @@ pub extern "C" fn _start() -> ! {
     println!("Hello World{}", "!");
 
     #[cfg(test)]
-    _test_runner(&[]);
+    osirs::_test_runner(&[]);
 
     loop {}
 }
