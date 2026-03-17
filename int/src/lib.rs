@@ -7,6 +7,16 @@
 pub mod vga;
 pub mod serial;
 
+pub const QEMU_PASS: u32 = 0x10;
+pub const QEMU_FAIL: u32 = 0x11;
+
+pub fn qemu_quit(code: u32) {
+    use x86_64::instructions::port::Port;
+    unsafe {
+        let mut port = Port::new(0xf4);
+        port.write(code);
+    }
+}
 
 #[cfg(test)]
 #[unsafe(no_mangle)]
@@ -34,9 +44,8 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
 
 
 
-
 // clear to make tests easier 
-fn _clear_vga() {
+pub fn _clear_vga() {
     for i in 0..2000 {
         unsafe {
             *((0xb8000 + i * 2) as *mut u8) = b' ';
@@ -46,49 +55,6 @@ fn _clear_vga() {
 }
 
 
-
-// Testing the VGA buffer 
-#[test_case]
-fn test_println(){
-    _clear_vga();
-    println!("A");
-    // peek at VGA buff to make - FIRST slot 
-    let val: u8 = unsafe { *(0xb8000 as *const u8) };
-    assert_eq!(val, b'A');
-}
-
-#[test_case]
-fn linewrap(){
-    _clear_vga();
-    println!("{:081x}", 1);
-    println!("{:x}", 2);
-    // 80 columns per row 
-    // check if wrap line0 to line1
-    let l1_val = unsafe {*((0xb8000 + 160) as *const u8) };
-    // use byte literal
-    assert_eq!(l1_val, b'1');
-}
-
-#[test_case]
-fn test_scroll(){
-    _clear_vga();
-    for i in 0..26 {
-        println!("{}", i);
-    }
-    // check that row 0 contains what was on row 1
-    let val = unsafe { *(0xb8000 as *const u8) };
-    assert_eq!(val, b'1');
-}
-
-#[test_case]
-fn simple_assert(){
-    _clear_vga();
-    // test simple assertion 
-    println!("test_1");
-    print!("assertion...");
-    assert_eq!(1, 1);
-    println!("[ok]");
-}
 
 
 // Panic when test 
