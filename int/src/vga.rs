@@ -80,7 +80,11 @@ pub fn str_to_vga(s: &str) {
     }
 }
 
-
+pub fn _reset() {
+    unsafe {
+        LATEST = 0;
+    }
+}
 
 
 
