@@ -13,6 +13,11 @@ pub mod interrupts;
 pub const QEMU_PASS: u32 = 0x10;
 pub const QEMU_FAIL: u32 = 0x11;
 
+pub fn init(){
+    interrupts::init_idt();
+}
+
+
 pub fn qemu_quit(code: u32) {
     use x86_64::instructions::port::Port;
     unsafe {
