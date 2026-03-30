@@ -3,6 +3,7 @@
 #![feature(custom_test_frameworks)]
 #![feature(abi_x86_interrupt)]
 #![test_runner(osirs::_test_runner)]
+#![reexport_test_harness_main = "test_main"]
 
 mod vga;
 mod serial;
@@ -11,15 +12,15 @@ mod serial;
 pub extern "C" fn _start() -> ! {
     println!("Hello World{}", "!");
 
-    println!("before init");
     osirs::init();
-    println!("after init");
 
-    x86_64::instructions::interrupts::int3();
+    unsafe { *(0xdeadbeef as *mut u8) = 42; };
+    // need to add handler for int3
 
     #[cfg(test)]
-    osirs::_test_runner(&[]);
+    osirs::qemu_quit(osirs::QEMU_PASS);
 
+    println!("did not crash");
     loop {}
 }
 

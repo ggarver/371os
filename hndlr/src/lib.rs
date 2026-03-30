@@ -8,6 +8,7 @@
 pub mod vga;
 pub mod serial;
 pub mod interrupts;
+pub mod gdt;
 
 
 pub const QEMU_PASS: u32 = 0x10;
@@ -15,6 +16,7 @@ pub const QEMU_FAIL: u32 = 0x11;
 
 pub fn init(){
     interrupts::init_idt();
+    gdt::init_gdt();
 }
 
 
