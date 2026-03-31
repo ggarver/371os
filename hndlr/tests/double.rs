@@ -5,7 +5,6 @@
 
 #[panic_handler]
 fn test_panic(info: &core::panic::PanicInfo) -> ! {
-    osirs::serial_println!("{}", info);
     osirs::serial_println!("[Pass]");
     osirs::qemu_quit(osirs::QEMU_PASS);
     loop {}
