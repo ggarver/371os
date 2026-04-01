@@ -10,23 +10,11 @@ pub mod serial;
 pub mod interrupts;
 pub mod gdt;
 
-
-pub const QEMU_PASS: u32 = 0x10;
-pub const QEMU_FAIL: u32 = 0x11;
-
 pub fn init(){
-    interrupts::init_idt();
     gdt::init_gdt();
+    interrupts::init_idt();
 }
 
-
-pub fn qemu_quit(code: u32) {
-    use x86_64::instructions::port::Port;
-    unsafe {
-        let mut port = Port::new(0xf4);
-        port.write(code);
-    }
-}
 
 #[cfg(test)]
 #[unsafe(no_mangle)]
@@ -43,7 +31,7 @@ pub enum QemuExitCode {
 }
 
 // exit code for qemu 
-pub fn exit_qemu(exit_code: QemuExitCode) {
+pub fn qemu_quit(exit_code: QemuExitCode) {
     use x86_64::instructions::port::Port;
 
     unsafe{
@@ -71,7 +59,7 @@ pub fn _clear_vga() {
 pub fn test_panic_handler(_info: &core::panic::PanicInfo) -> ! {
     serial_println!( "[failed]");
     serial_print!("\n{}\n", _info);
-    exit_qemu(QemuExitCode::Failed);
+    qemu_quit(QemuExitCode::Failed);
     serial_print!("\n");
     loop {}
 }
@@ -84,12 +72,13 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 
 
 pub fn _test_runner(tests: &[&dyn Fn()]) {
+    init();
     for (i, test) in tests.iter().enumerate() {
         serial_print!("Running test {:0x}...", i);
         test();
         serial_println!(" [pass]");
     }
-    exit_qemu(QemuExitCode::Success);
+    qemu_quit(QemuExitCode::Success);
 }
 
 

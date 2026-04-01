@@ -16,5 +16,5 @@ bench = false
 [package.metadata.bootimage]
 test-success-exit-code = 33
 test-args = ["-display", "none", "-serial", "stdio", "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04"]
-test-timeout = 18
+test-timeout = 10
 

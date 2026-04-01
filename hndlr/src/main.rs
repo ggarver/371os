@@ -7,20 +7,22 @@
 
 mod vga;
 mod serial;
+use x86_64::instructions::interrupts::int3;
+
 
 #[unsafe(no_mangle)]
 pub extern "C" fn _start() -> ! {
+    osirs::init();
     println!("Hello World{}", "!");
 
-    osirs::init();
-
+    // int3();
     unsafe { *(0xdeadbeef as *mut u8) = 42; };
     // need to add handler for int3
 
     #[cfg(test)]
-    osirs::qemu_quit(osirs::QEMU_PASS);
+    osirs::qemu_quit(osirs::QemuExitCode::Success);
 
-    println!("did not crash");
+    // println!("did not crash");
     loop {}
 }
 
