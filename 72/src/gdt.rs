@@ -1,9 +1,7 @@
 #![allow(static_mut_refs)]
-
+use x86_64::structures::gdt::GlobalDescriptorTable;
 // GDT
-static mut GDT: x86_64::structures::gdt::GlobalDescriptorTable =
-    x86_64::structures::gdt::GlobalDescriptorTable::new();
-
+static mut GDT: GlobalDescriptorTable = GlobalDescriptorTable::new();
 // TSS
 const STACK_SIZE: usize = 4096 * 5;
 static mut TSS: x86_64::structures::tss::TaskStateSegment =

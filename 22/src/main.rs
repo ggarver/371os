@@ -22,7 +22,6 @@ fn main() {
 
     assert!(malloc(2048).is_none());
     println!("A++");
-
     // Allocs totaling > SIZE should fail
 
     // We have alloc (16 + 32) * 8 = 384 of 1024

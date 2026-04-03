@@ -1,3 +1,5 @@
+use x86_64::structures::idt::InterruptStackFrame;
+
 
 #[allow(static_mut_refs)]
 static mut IDT: x86_64::structures::idt::InterruptDescriptorTable =
@@ -17,7 +19,7 @@ pub fn init_idt() {
 }
 
 extern "x86-interrupt" fn breakpoint_handler(
-    stack_frame: x86_64::structures::idt::InterruptStackFrame)
+    stack_frame: InterruptStackFrame)
 {
     crate::println!("EXCEPTION: BREAKPOINT\n{:#?}", stack_frame);
 }

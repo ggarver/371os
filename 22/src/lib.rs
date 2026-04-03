@@ -3,7 +3,7 @@
 // size is amnt of bytes 
 pub const SIZE:usize = 0x80;
 static mut BUS: [u8; SIZE] = [0u8;SIZE];
-const res: usize = SIZE >> 3 >> 3;
+const RES: usize = SIZE >> 3 >> 3;
 
 
 // reserve the beginning of the array for bitmask
@@ -17,7 +17,7 @@ fn init() {
         // if a bit is set to 1, corresponding byte is in use 
         // Which has to reserve enough bytes for itself.
         // Going from 0 to max reserved bytes
-        for i in 0..res {
+        for i in 0..RES {
             BUS[i] = 0b11111111;
         }         
     }
@@ -49,7 +49,7 @@ fn update_bmask(start: usize, end:usize) {
     } else {
         let bydex = start / 8;
         let local_bindex = start % 8;
-        unsafe {BUS[bydex] |= (1 << local_bindex);}
+        unsafe {BUS[bydex] |= 1 << local_bindex;}
         update_bmask(start+1, end);
     }
 }
@@ -63,7 +63,7 @@ pub fn malloc(s: usize) -> Option<usize> {
         }
 
         // find block, update bitmask
-        let address = search_space(s, res, 0);
+        let address = search_space(s, RES, 0);
         match address {
             Some(bindex) => { 
                 update_bmask(bindex, bindex+s);
