@@ -9,6 +9,14 @@ mod vga;
 mod serial;
 use x86_64::instructions::interrupts::int3;
 
+let scancode: u8 = x86_64::instructions::port::Port::new(0x60).read();
+let mut kb = pc_keyboard::Keyboard::new(
+    pc_keyboard::ScancodeSet1::new(),
+    pc_keyboard::layouts::Us104Key,
+    pc_keyboard::HandleControl::Ignore,
+);
+crate::println!("{:?}", kb.add_byte(scancode));
+
 
 #[unsafe(no_mangle)]
 pub extern "C" fn _start() -> ! {
