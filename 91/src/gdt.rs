@@ -17,6 +17,7 @@ pub fn init_gdt() {
         TSS.interrupt_stack_table[DOUBLE_FAULT_IST_INDEX] =
             x86_64::VirtAddr::from_ptr(&raw const STACK) + STACK_SIZE;
         let kcs = GDT.add_entry(x86_64::structures::gdt::Descriptor::kernel_code_segment());
+        let _kds = GDT.add_entry(x86_64::structures::gdt::Descriptor::user_data_segment());
         let tss = GDT.add_entry(x86_64::structures::gdt::Descriptor::tss_segment(&TSS));
         GDT.load();
         use x86_64::instructions::segmentation::Segment;

@@ -5,22 +5,19 @@
 #![test_runner(osirs::_test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-mod vga;
-mod serial;
-
+use osirs::println;
 
 #[unsafe(no_mangle)]
 pub extern "C" fn _start() -> ! {
     osirs::init();
     println!("Hello World{}", "!");
-
     // println needs to be called before this line
     unsafe { *(0xdeadbeef as *mut u8) = 42; };
     // need to add handler for int3
 
     #[cfg(test)]
     osirs::qemu_quit(osirs::QemuExitCode::Success);
-
+    
     loop {
     }
 }
