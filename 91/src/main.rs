@@ -7,15 +7,6 @@
 
 mod vga;
 mod serial;
-use x86_64::instructions::interrupts::int3;
-
-let scancode: u8 = x86_64::instructions::port::Port::new(0x60).read();
-let mut kb = pc_keyboard::Keyboard::new(
-    pc_keyboard::ScancodeSet1::new(),
-    pc_keyboard::layouts::Us104Key,
-    pc_keyboard::HandleControl::Ignore,
-);
-crate::println!("{:?}", kb.add_byte(scancode));
 
 
 #[unsafe(no_mangle)]
@@ -23,15 +14,15 @@ pub extern "C" fn _start() -> ! {
     osirs::init();
     println!("Hello World{}", "!");
 
-    // int3();
+    // println needs to be called before this line
     unsafe { *(0xdeadbeef as *mut u8) = 42; };
     // need to add handler for int3
 
     #[cfg(test)]
     osirs::qemu_quit(osirs::QemuExitCode::Success);
 
-    // println!("did not crash");
-    loop {}
+    loop {
+    }
 }
 
 

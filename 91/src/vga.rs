@@ -18,8 +18,12 @@ macro_rules! println {
 
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
+    use x86_64::instructions::interrupts;
     let mut d = Dummy { };
-    d.write_fmt(args).unwrap();
+
+    interrupts::without_interrupts(|| {
+        d.write_fmt(args).unwrap();
+    });
 }
 
 
