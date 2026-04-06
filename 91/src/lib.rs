@@ -11,15 +11,10 @@ pub mod interrupts;
 pub mod gdt;
 
 pub fn init(){
-    unsafe { *(0xb8000 as *mut u16) = 0x0f31; } // '1'
     gdt::init_gdt();
-    unsafe { *(0xb8000 as *mut u16) = 0x0f32; } // '2'
     interrupts::init_idt();
-    unsafe { *(0xb8000 as *mut u16) = 0x0f33; } // '3'
     unsafe { interrupts::PICS.lock().initialize() };
-    unsafe { *(0xb8000 as *mut u16) = 0x0f34; } // '4'
     x86_64::instructions::interrupts::enable();
-    unsafe { *(0xb8000 as *mut u16) = 0x0f35; } // '5'
 }
 
 
