@@ -17,7 +17,20 @@ pub struct Timer {
     sec: u8
 }
 
+pub static mut CHARS: [u8; 6] = [0; 6];
+pub static mut INDEX: usize = 0;
+
 impl Timer {
+    pub fn init_timer() {
+        unsafe {
+            let hrs: u8 = str::from_utf8_unchecked(&CHARS[0..2]).parse().unwrap();
+            let min: u8 = str::from_utf8_unchecked(&CHARS[2..4]).parse().unwrap();
+            let sec: u8 = str::from_utf8_unchecked(&CHARS[4..6]).parse().unwrap();
+
+            *get_timer() = Timer::new(hrs, min, sec);
+        }
+        
+    }
     pub fn new(hrs: u8, min:u8, sec:u8) -> Timer {
         Timer { hrs, min, sec }
     }
