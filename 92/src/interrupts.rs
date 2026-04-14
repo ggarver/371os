@@ -117,7 +117,7 @@ static mut COUNT: usize = 0;
 extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFrame) {
     unsafe {
         COUNT += 1;
-        COUNT %= 10;
+        COUNT %= 17;
     }
     if unsafe { COUNT == 0 && TIMER_ACTIVE } {
         let timer = get_timer();
