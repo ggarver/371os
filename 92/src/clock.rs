@@ -1,5 +1,7 @@
 use core::fmt::{self, Display, Formatter};
 
+
+pub static mut TIMER_ACTIVE: bool = false;
 static mut _TIMER: Timer = Timer { hrs: 0, min: 0, sec: 0 };
 
 pub fn get_timer() -> &'static mut Timer {
@@ -28,6 +30,7 @@ impl Timer {
             let sec: u8 = str::from_utf8_unchecked(&CHARS[4..6]).parse().unwrap();
 
             *get_timer() = Timer::new(hrs, min, sec);
+            TIMER_ACTIVE = true;
         }
         
     }
