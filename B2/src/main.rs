@@ -8,6 +8,8 @@
 use osirs::println;
 use osirs::clock;
 use osirs::memory;
+use x86_64::structures::paging::Page;
+use x86_64::VirtAddr;
 
 #[unsafe(no_mangle)]
 pub extern "C" fn _start(boot_info: &'static bootloader::BootInfo) -> ! {
