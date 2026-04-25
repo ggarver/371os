@@ -1,0 +1,25 @@
+[package]
+name = "osirs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bootloader = { version = "0.9", features = ["map_physical_memory"]}
+x86_64 = "0.14.2"
+uart_16550 = "0.2.0"
+pic8259 = "0.10.1"
+spin = { version = "0.9", features = ["once"]}
+pc-keyboard = "0.7.0"
+lazy_static = { version = "1.5.0", features = ["spin_no_std"], default-features = false}
+
+[[bin]]
+name = "osirs"
+test = true
+bench = false
+
+[package.metadata.bootimage]
+test-success-exit-code = 33
+test-args = ["-display", "none", "-serial", "stdio", "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04"]
+test-timeout = 60
+run-args = ["-serial", "stdio", "-no-reboot"]
+
