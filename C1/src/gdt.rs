@@ -1,5 +1,11 @@
 #![allow(static_mut_refs)]
 
+use x86_64::structures::gdt::Descriptor;
+use x86_64::registers::segmentation::CS;
+use x86_64::registers::segmentation::SS;
+use x86_64::instructions::tables::load_tss;
+use core::sync::atomic::{AtomicBool, Ordering};
+
 // GDT
 static mut GDT: x86_64::structures::gdt::GlobalDescriptorTable =
     x86_64::structures::gdt::GlobalDescriptorTable::new();
@@ -12,16 +18,23 @@ static mut STACK: [u8; STACK_SIZE] = [0; STACK_SIZE];
 
 pub const DOUBLE_FAULT_IST_INDEX: u16 = 0;
 
+
+static GDT_INITIALIZED: AtomicBool = AtomicBool::new(false);
+
 pub fn init_gdt() {
+    if GDT_INITIALIZED.swap(true, Ordering::SeqCst) {
+        return;
+    }
     unsafe {
         TSS.interrupt_stack_table[DOUBLE_FAULT_IST_INDEX as usize] =
-            x86_64::VirtAddr::from_ptr(&raw const STACK) + STACK_SIZE;
-        let kcs = GDT.add_entry(x86_64::structures::gdt::Descriptor::kernel_code_segment());
-        let _kds = GDT.add_entry(x86_64::structures::gdt::Descriptor::user_data_segment());
-        let tss = GDT.add_entry(x86_64::structures::gdt::Descriptor::tss_segment(&TSS));
+            x86_64::VirtAddr::from_ptr(&raw const STACK) + STACK_SIZE as u64;
+        let kcs = GDT.add_entry(Descriptor::kernel_code_segment());
+        let kds = GDT.add_entry(Descriptor::kernel_data_segment());
+        let tss = GDT.add_entry(Descriptor::tss_segment(&TSS));
         GDT.load();
         use x86_64::instructions::segmentation::Segment;
-        x86_64::instructions::segmentation::CS::set_reg(kcs);
-        x86_64::instructions::tables::load_tss(tss);
+        CS::set_reg(kcs);
+        SS::set_reg(kds);
+        load_tss(tss);
     }
 }

@@ -28,13 +28,9 @@ pub extern "C" fn _start(boot_info: &'static bootloader::BootInfo) -> ! {
     osirs::allocator::init_heap(&mut mapper, &mut frame_allocator).unwrap();
 
 
-    println!("Hello world{}", "!");
-    let b = alloc::boxed::Box::new(371);
-    let l = alloc::boxed::Box::new(41);
+    println!("Hello World{}", "!");
 
-    // println!("l is {:p}!", l);
-    // println!("Hello box containing {}!", *b);
-    // println!("Hello box at {:p}!", b);
+
 
 
     // println!("FIN");

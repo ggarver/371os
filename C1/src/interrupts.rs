@@ -43,7 +43,7 @@ lazy_static! {
             idt.double_fault
                 .set_handler_fn(double_fault_handler)
                 .set_stack_index(gdt::DOUBLE_FAULT_IST_INDEX);
-        }
+            }
         unsafe {
             idt.page_fault.set_handler_fn(page_fault_handler);
         }
@@ -54,16 +54,23 @@ lazy_static! {
 }
 
 pub fn init_idt() {
-    IDT.load();
+    unsafe {
+        // IDT.breakpoint.set_handler_fn(breakpoint_handler);
+        // IDT.double_fault
+        //    .set_handler_fn(double_fault_handler)
+        //    .set_stack_index(crate::gdt::DOUBLE_FAULT_IST_INDEX as u16);
+        IDT.load();
+        // PICS.lock().initialize();
+    }
 }
 
 // ---- Keyboard ----------------------------------------------------------
 lazy_static! {
     static ref KEYBOARD: Mutex<Keyboard<layouts::Us104Key, ScancodeSet1>> =
         Mutex::new(Keyboard::new(
-            ScancodeSet1::new(),
-            layouts::Us104Key,
-            HandleControl::Ignore,
+                ScancodeSet1::new(),
+                layouts::Us104Key,
+                HandleControl::Ignore,
         ));
 }
 
@@ -104,7 +111,7 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
     unsafe {
         PICS.lock()
             .notify_end_of_interrupt(InterruptIndex::Keyboard.as_u8());
-    }
+        }
 }
 // <-- keyboard_interrupt_handler ends here
 
