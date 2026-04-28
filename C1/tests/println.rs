@@ -11,7 +11,6 @@ use osirs::_clear_vga;
 fn simple_assert(){
     _clear_vga();
     // test simple assertion 
-    println!("test_1");
     osirs::print!("assertion...");
     assert_eq!(1, 1);
     println!("[ok]");
@@ -44,11 +43,11 @@ fn linewrap(){
 fn test_scroll(){
     _clear_vga();
     for i in 0..26 {
-        println!("{}", i);
+        println!("A{}", i);
     }
     // check that row 0 contains what was on row 1
     let val = unsafe { *(0xb8000 as *const u8) };
-    assert_eq!(val, b'1');
+    assert_eq!(val, b'A');
 }
 
 

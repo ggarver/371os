@@ -16,7 +16,6 @@ fn except_test(){
     x86_64::instructions::interrupts::int3();
     // breakpoint handler returns, execution resumes here
     osirs::serial_println!("[ok] breakpoint exception returned");
-    loop {}
 }
 
 #[panic_handler]

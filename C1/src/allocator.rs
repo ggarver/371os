@@ -1,6 +1,9 @@
 pub const HEAP_START: usize = 0x_C371_0000; // CS-371
 pub const HEAP_SIZE: usize = 1 << 16;  // Arbitrary
 
+#[global_allocator]
+static ALLOCATOR: linked_list_allocator::LockedHeap = linked_list_allocator::LockedHeap::empty();
+
 pub fn init_heap(
     mapper: &mut impl x86_64::structures::paging::Mapper<x86_64::structures::paging::Size4KiB>,
     frame_allocator: &mut impl x86_64::structures::paging::FrameAllocator<
@@ -35,9 +38,5 @@ pub fn init_heap(
 
     return Some(());
 }
-
-
-#[global_allocator]
-static ALLOCATOR: linked_list_allocator::LockedHeap = linked_list_allocator::LockedHeap::empty();
 
 

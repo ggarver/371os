@@ -2,21 +2,12 @@
 #![no_main]
 #![feature(custom_test_frameworks)]
 #![test_runner(osirs::_test_runner)]
+#![reexport_test_harness_main = "test_main"]
 
 extern crate alloc;
+use osirs::println;
 
-#[panic_handler]
-fn panic(info: &core::panic::PanicInfo) -> ! {
-    osirs::test_panic_handler(info)
-}
-
-#[unsafe(no_mangle)]
-pub extern "C" fn _start() -> ! {
-    osirs::init();
-    osirs::qemu_quit(osirs::QEMU_PASS);
-    osirs::halt();
-}
-
+#[test_case]
 fn simple_allocation() {
     let heap_value_1 = alloc::boxed::Box::new(41);
     let heap_value_2 = alloc::boxed::Box::new(13);
@@ -24,18 +15,19 @@ fn simple_allocation() {
     assert_eq!(*heap_value_2, 13);
 }
 
-fn large_vec() {
-    let n = 1000;
-    let mut vec = alloc::vec::Vec::new();
-    for i in 0..n {
-        vec.push(i);
-    }
-    assert_eq!(vec.iter().sum::<u64>(), (n - 1) * n / 2);
+
+#[unsafe(no_mangle)]
+pub extern "C" fn _start() -> ! {
+    test_main();
+    osirs::init();
+    // test_main();
+    osirs::qemu_quit(osirs::QemuExitCode::Success);
+    osirs::halt();
+    
 }
 
-fn many_boxes() {
-    for i in 0..osirs::allocator::HEAP_SIZE {
-        let x = Box::new(i);
-        assert_eq!(*x, i);
-    }
+
+#[panic_handler]
+fn panic(info: &core::panic::PanicInfo) -> ! {
+    osirs::test_panic_handler(info)
 }

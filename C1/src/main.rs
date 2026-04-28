@@ -24,12 +24,19 @@ pub extern "C" fn _start(boot_info: &'static bootloader::BootInfo) -> ! {
  
     let mut frame_allocator =
         unsafe { osirs::memory::BootInfoFrameAllocator::init(&boot_info.memory_map) };
+
     osirs::allocator::init_heap(&mut mapper, &mut frame_allocator).unwrap();
+
 
     println!("Hello world{}", "!");
     let b = alloc::boxed::Box::new(371);
-    println!("Hello box containing {}!", *b);
-    println!("Hello box at {:p}!", b);
+    let l = alloc::boxed::Box::new(41);
+
+    // println!("l is {:p}!", l);
+    // println!("Hello box containing {}!", *b);
+    // println!("Hello box at {:p}!", b);
+
+
     // println!("FIN");
     // println!("Enter start time as HH MM SS (e.g. 13 45 00):");
     // println!("Level 4 page table at: {:?}", x86_64::registers::control::Cr3::read().0.start_address());

@@ -15,6 +15,7 @@ pub mod gdt;
 pub mod clock;
 pub mod memory;
 
+
 pub fn init(){
     gdt::init_gdt();
     interrupts::init_idt();
