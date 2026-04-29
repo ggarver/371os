@@ -11,9 +11,9 @@ use osirs::memory;
 use x86_64::structures::paging::Page;
 use x86_64::VirtAddr;
 mod colors;
-mod snake;
-struct Snake;
 
+mod snake;
+use snake::Snake;
 // use crate::snake::init_snake;
 extern crate alloc;
 
@@ -33,10 +33,10 @@ pub extern "C" fn _start(boot_info: &'static bootloader::BootInfo) -> ! {
 
 
     //println!("SNAKE!{}", "!");
-    colors::colors();
+    // // // // // // // // // colors::colors();
 
-    let my_snake = Snake;
-    my_snake.init_snake();
+    let mut snake = Snake { length: 0 };
+    snake.init_snake();
 
 
     // println!("FIN");
