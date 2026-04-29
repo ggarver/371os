@@ -11,7 +11,10 @@ use osirs::memory;
 use x86_64::structures::paging::Page;
 use x86_64::VirtAddr;
 mod colors;
+mod snake;
+struct Snake;
 
+// use crate::snake::init_snake;
 extern crate alloc;
 
 #[unsafe(no_mangle)]
@@ -29,8 +32,12 @@ pub extern "C" fn _start(boot_info: &'static bootloader::BootInfo) -> ! {
     // osirs::allocator::init_heap(&mut mapper, &mut frame_allocator).unwrap();
 
 
-    println!("SNAKE!{}", "!");
+    //println!("SNAKE!{}", "!");
     colors::colors();
+
+    let my_snake = Snake;
+    my_snake.init_snake();
+
 
     // println!("FIN");
     // println!("Enter start time as HH MM SS (e.g. 13 45 00):");
