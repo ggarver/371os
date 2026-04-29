@@ -1,8 +1,4 @@
 pub fn colors() {
-    // let colors: [u8; 16] = [0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf];
-    // 720 x 400 pix
-    // display background colors to screendump.ppm 
-    // let color_codes: (*u8)= [];
     let vga_buff = 0xb8000 as *mut u8;
 
     // 80 horizontal by 25 vert, 2 dimensions
