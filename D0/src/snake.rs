@@ -24,13 +24,13 @@ pub struct Snake {
 
 impl Snake {
     pub fn init_snake(&mut self) {
-        self.length = 0;
+        self.length = 1;
 
         // draw initial snake head at center (row 12, col 37)
         let pos = (12 * 80 + 37) * 2;
         unsafe {
             BUFF_PTR.add(self.pos).write_volatile(BODY);
-            BUFF_PTR.add(self.pos + 1).write_volatile((COL << 4) | COL);
+            BUFF_PTR.add(self.pos + 1).write_volatile(COL);
         }
 
         *get_snake() = Snake::new(self.length, self.pos);
@@ -42,13 +42,45 @@ impl Snake {
 
     pub fn right(&mut self){
         self.pos = self.pos + 2;
+        unsafe {
+            // write to the right
+            BUFF_PTR.add(self.pos).write_volatile(BODY);
+            BUFF_PTR.add(self.pos + self.length).write_volatile(COL);
 
+            // erase to left
+            BUFF_PTR.add(self.pos - self.length).write_volatile(0x0);
+        }
+    }
+
+    pub fn left(&mut self){
+        self.pos = self.pos - 2;
         unsafe {
             BUFF_PTR.add(self.pos).write_volatile(BODY);
-            BUFF_PTR.add(self.pos + 1).write_volatile((COL << 4) | COL);
+            BUFF_PTR.add(self.pos + self.length).write_volatile(COL);
+
+            //erase right
+            BUFF_PTR.add((self.pos + 2) + self.length).write_volatile(0x0);
+        }
+    }
+
+    pub fn up(&mut self){
+        self.pos = self.pos - 160;
+        unsafe {
+            BUFF_PTR.add(self.pos).write_volatile(BODY);
+            BUFF_PTR.add(self.pos + 1).write_volatile(COL);
+        }
+    }
+
+    pub fn down(&mut self){
+        self.pos = self.pos + 160;
+        unsafe {
+            BUFF_PTR.add(self.pos).write_volatile(BODY);
+            BUFF_PTR.add(self.pos + 1).write_volatile(COL);
         }
 
-
-
     }
+
+
 }
+
+

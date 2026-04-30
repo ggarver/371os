@@ -97,9 +97,9 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
                         pc_keyboard::KeyCode::LShift | pc_keyboard::KeyCode::RShift,
                     ) => print!(""),
                     // VIM keybinds for snake 
-                    DecodedKey::Unicode('h') => print!("left"),
-                    DecodedKey::Unicode('j') => print!("down"),
-                    DecodedKey::Unicode('k') => print!("up"), 
+                    DecodedKey::Unicode('h') => snake.left(),
+                    DecodedKey::Unicode('j') => snake.down(),
+                    DecodedKey::Unicode('k') => snake.up(), 
                     DecodedKey::Unicode('l') => snake.right(),
                     // other 
                     DecodedKey::RawKey(pc_keyboard::KeyCode::Oem7) => print!("|"),
