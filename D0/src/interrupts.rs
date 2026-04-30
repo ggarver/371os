@@ -1,5 +1,10 @@
 use pic8259::ChainedPics;
 use spin;
+
+use crate::snake::get_snake;
+use crate::snake::Snake;
+
+
 use x86_64::structures::idt::InterruptDescriptorTable;
 use x86_64::structures::idt::InterruptStackFrame;
 use crate::{gdt, print, println};
@@ -75,6 +80,8 @@ lazy_static! {
 }
 
 extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStackFrame) {
+    let snake = get_snake();
+
     let mut port = Port::new(0x60);
     let scancode: u8 = unsafe { port.read() };
 
@@ -93,7 +100,7 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
                     DecodedKey::Unicode('h') => print!("left"),
                     DecodedKey::Unicode('j') => print!("down"),
                     DecodedKey::Unicode('k') => print!("up"), 
-                    DecodedKey::Unicode('l') => print!("right"),
+                    DecodedKey::Unicode('l') => snake.right(),
                     // other 
                     DecodedKey::RawKey(pc_keyboard::KeyCode::Oem7) => print!("|"),
                     DecodedKey::Unicode(character) => print!("{}", character),
@@ -126,9 +133,9 @@ extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFr
         COUNT %= 17;
     }
     if unsafe { COUNT == 0 && TIMER_ACTIVE } {
-        let timer = get_timer();
-        timer.tick();
-        println!("{timer}");
+        //let snake = get_snake();
+        // snake.right();
+        // println!("{timer}");
     }
     unsafe {
         PICS.lock()

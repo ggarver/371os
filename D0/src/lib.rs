@@ -7,6 +7,11 @@
 
 extern crate alloc;
 
+
+pub mod snake;
+
+
+
 pub mod allocator;
 pub mod vga;
 pub mod serial;
@@ -15,6 +20,7 @@ pub mod gdt;
 pub mod clock;
 pub mod memory;
 
+// pub mod snake;
 
 pub fn init(){
     gdt::init_gdt();

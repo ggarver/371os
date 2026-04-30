@@ -5,6 +5,9 @@
 #![test_runner(osirs::_test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+
+use osirs::snake::Snake;
+
 use osirs::println;
 use osirs::clock;
 use osirs::memory;
@@ -12,10 +15,6 @@ use x86_64::structures::paging::Page;
 use x86_64::VirtAddr;
 mod colors;
 
-mod snake;
-use snake::Snake;
-// use crate::snake::init_snake;
-extern crate alloc;
 
 #[unsafe(no_mangle)]
 pub extern "C" fn _start(boot_info: &'static bootloader::BootInfo) -> ! {
@@ -23,20 +22,11 @@ pub extern "C" fn _start(boot_info: &'static bootloader::BootInfo) -> ! {
 
     x86_64::instructions::interrupts::enable();
 
-    // let offset = x86_64::VirtAddr::new(boot_info.physical_memory_offset);
-    // let mut mapper = unsafe { osirs::memory::init(offset) };
- 
-    // let mut frame_allocator =
-    //     unsafe { osirs::memory::BootInfoFrameAllocator::init(&boot_info.memory_map) };
-
-    // osirs::allocator::init_heap(&mut mapper, &mut frame_allocator).unwrap();
-
-
-    //println!("SNAKE!{}", "!");
-    // // // // // // // // // colors::colors();
-
-    let mut snake = Snake { length: 0 };
+    let mut snake = Snake { length: 0, pos: (12 * 80 + 37) * 2 };
     snake.init_snake();
+    snake.right();
+
+    // snake.right();
 
 
     // println!("FIN");
