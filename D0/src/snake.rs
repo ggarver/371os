@@ -68,6 +68,9 @@ impl Snake {
         unsafe {
             BUFF_PTR.add(self.pos).write_volatile(BODY);
             BUFF_PTR.add(self.pos + 1).write_volatile(COL);
+
+            //erase 
+            BUFF_PTR.add(self.pos + 160 + self.length).write_volatile(0x0);
         }
     }
 
@@ -76,6 +79,9 @@ impl Snake {
         unsafe {
             BUFF_PTR.add(self.pos).write_volatile(BODY);
             BUFF_PTR.add(self.pos + 1).write_volatile(COL);
+
+            //erase
+            BUFF_PTR.add(self.pos + self.length - 160).write_volatile(0x0);
         }
 
     }
