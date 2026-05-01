@@ -1,6 +1,7 @@
 // snake implimentation lives here
 
-
+use crate::clock::get_timer;
+use crate::clock::{INDEX, CHARS, Timer, TIMER_ACTIVE};
 const BODY: u8 = 0xDB;
 const BUFF_PTR: *mut u8 = 0xb8000 as *mut u8;
 const COL: u8 = 0x09;
@@ -30,7 +31,7 @@ impl Snake {
         let pos = (12 * 80 + 37) * 2;
         unsafe {
             BUFF_PTR.add(self.pos).write_volatile(BODY);
-            BUFF_PTR.add(self.pos + 1).write_volatile(COL);
+            BUFF_PTR.add(self.pos).write_volatile(COL);
         }
 
         *get_snake() = Snake::new(self.length, self.pos);
@@ -43,6 +44,7 @@ impl Snake {
     pub fn right(&mut self){
         self.pos = self.pos + 2;
         unsafe {
+            // Timer::init_timer();
             // write to the right
             BUFF_PTR.add(self.pos).write_volatile(BODY);
             BUFF_PTR.add(self.pos + self.length).write_volatile(COL);

@@ -60,12 +60,7 @@ lazy_static! {
 
 pub fn init_idt() {
     unsafe {
-        // IDT.breakpoint.set_handler_fn(breakpoint_handler);
-        // IDT.double_fault
-        //    .set_handler_fn(double_fault_handler)
-        //    .set_stack_index(crate::gdt::DOUBLE_FAULT_IST_INDEX as u16);
         IDT.load();
-        // PICS.lock().initialize();
     }
 }
 
@@ -87,9 +82,12 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
 
     let mut keyboard = KEYBOARD.lock();
 
-    if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
+    if let Ok(Some(key_event)) = keyboard.add_byte(scancode) { 
         if let Some(key) = keyboard.process_keyevent(key_event) {
             unsafe {
+                if let DecodedKey::Unicode('s') = key {
+                    Timer::init_timer();
+                }
                 // Normal key handling after timer is set
                 match key {
                     // make R and L shift not print anything
@@ -128,14 +126,10 @@ extern "x86-interrupt" fn breakpoint_handler(_stack_frame: InterruptStackFrame) 
 static mut COUNT: usize = 0;
 
 extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFrame) {
-    unsafe {
-        COUNT += 1;
-        COUNT %= 17;
-    }
-    if unsafe { COUNT == 0 && TIMER_ACTIVE } {
-        //let snake = get_snake();
-        // snake.right();
-        // println!("{timer}");
+    if unsafe { TIMER_ACTIVE } {
+        let timer = get_timer();
+        timer.tick();
+        println!("{timer}");
     }
     unsafe {
         PICS.lock()

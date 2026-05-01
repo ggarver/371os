@@ -24,9 +24,6 @@ pub extern "C" fn _start(boot_info: &'static bootloader::BootInfo) -> ! {
 
     let mut snake = Snake { length: 0, pos: (12 * 80 + 37) * 2 };
     snake.init_snake();
-    snake.right();
-
-    // snake.right();
 
 
     // println!("FIN");

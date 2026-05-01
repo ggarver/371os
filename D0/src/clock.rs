@@ -25,9 +25,9 @@ pub static mut INDEX: usize = 0;
 impl Timer {
     pub fn init_timer() {
         unsafe {
-            let hrs: u8 = str::from_utf8_unchecked(&CHARS[0..2]).parse().unwrap();
-            let min: u8 = str::from_utf8_unchecked(&CHARS[2..4]).parse().unwrap();
-            let sec: u8 = str::from_utf8_unchecked(&CHARS[4..6]).parse().unwrap();
+            let hrs: u8 = 0;
+            let min: u8 = 0;
+            let sec: u8 = 0;
 
             *get_timer() = Timer::new(hrs, min, sec);
             TIMER_ACTIVE = true;
