@@ -43,6 +43,8 @@ impl Snake {
 
     pub fn right(&mut self){
         self.pos = self.pos + 2;
+
+        pub static mut MOV_R: bool = true; 
         unsafe {
             // Timer::init_timer();
             // write to the right

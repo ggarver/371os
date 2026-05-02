@@ -21,6 +21,10 @@ pub const PIC_2_OFFSET: u8 = PIC_1_OFFSET + 8;
 pub static PICS: spin::Mutex<ChainedPics> =
 spin::Mutex::new(unsafe { ChainedPics::new(PIC_1_OFFSET, PIC_2_OFFSET) });
 
+#[derive(PartialEq)]
+enum Direction { R, L, U, D }
+static CURRENT_DIRECTION: Mutex<Direction> = Mutex::new(Direction::U);
+
 
 #[derive(Debug, Clone, Copy)]
 #[repr(u8)]
@@ -74,6 +78,7 @@ lazy_static! {
         ));
 }
 
+
 extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStackFrame) {
     let snake = get_snake();
 
@@ -82,28 +87,27 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
 
     let mut keyboard = KEYBOARD.lock();
 
-    if let Ok(Some(key_event)) = keyboard.add_byte(scancode) { 
+    if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
         if let Some(key) = keyboard.process_keyevent(key_event) {
-            unsafe {
-                if let DecodedKey::Unicode('s') = key {
-                    Timer::init_timer();
-                }
-                // Normal key handling after timer is set
-                match key {
-                    // make R and L shift not print anything
-                    DecodedKey::RawKey(
-                        pc_keyboard::KeyCode::LShift | pc_keyboard::KeyCode::RShift,
-                    ) => print!(""),
-                    // VIM keybinds for snake 
-                    DecodedKey::Unicode('h') => snake.left(),
-                    DecodedKey::Unicode('j') => snake.down(),
-                    DecodedKey::Unicode('k') => snake.up(), 
-                    DecodedKey::Unicode('l') => snake.right(),
-                    // other 
-                    DecodedKey::RawKey(pc_keyboard::KeyCode::Oem7) => print!("|"),
-                    DecodedKey::Unicode(character) => print!("{}", character),
-                    DecodedKey::RawKey(k) => print!("{:?}", k),
-                }
+            match key {
+                // Spacebar starts the timer/game
+                DecodedKey::Unicode(' ') => unsafe { Timer::init_timer() },
+
+                // make R and L shift not print anything
+                DecodedKey::RawKey(
+                    pc_keyboard::KeyCode::LShift | pc_keyboard::KeyCode::RShift,
+                ) => {}
+
+                // VIM keybinds for snake
+                DecodedKey::Unicode('h') => *CURRENT_DIRECTION.lock() = Direction::L,
+                DecodedKey::Unicode('j') => *CURRENT_DIRECTION.lock() = Direction::D,
+                DecodedKey::Unicode('k') => *CURRENT_DIRECTION.lock() = Direction::U,
+                DecodedKey::Unicode('l') => *CURRENT_DIRECTION.lock() = Direction::R,
+
+                // other
+                DecodedKey::RawKey(pc_keyboard::KeyCode::Oem7) => print!("|"),
+                DecodedKey::Unicode(character) => print!("{}", character),
+                DecodedKey::RawKey(k) => print!("{:?}", k),
             }
         }
 
@@ -113,6 +117,7 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
         }
     }
 }
+
 // <-- keyboard_interrupt_handler ends here
 
 // ---- Breakpoint --------------------------------------------------------
@@ -127,15 +132,21 @@ static mut COUNT: usize = 0;
 
 extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFrame) {
     if unsafe { TIMER_ACTIVE } {
-        let timer = get_timer();
-        timer.tick();
-        println!("{timer}");
+        let snake = get_snake();
+        let dir = CURRENT_DIRECTION.lock();
+        match *dir {
+            Direction::U => snake.up(),
+            Direction::D => snake.down(),
+            Direction::L => snake.left(),
+            Direction::R => snake.right(),
+        }
     }
     unsafe {
         PICS.lock()
             .notify_end_of_interrupt(InterruptIndex::Pic_Timer.as_u8());
     }
 }
+
 
 // ---- Double Fault ------------------------------------------------------
 
@@ -162,3 +173,5 @@ extern "x86-interrupt" fn page_fault_handler(
         stack_frame,
     );
 }
+
+

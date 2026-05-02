@@ -38,6 +38,8 @@ impl Timer {
         Timer { hrs, min, sec }
     }
     pub fn tick(&mut self) {
+        // try right 
+
         let Timer { hrs, min, sec } = *self;
 
         let inc_sec = sec + 1;
