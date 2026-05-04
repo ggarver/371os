@@ -7,6 +7,7 @@ const BUFF_PTR: *mut u8 = 0xb8000 as *mut u8;
 const COL: u8 = 0x09;
 
 static mut _SNAKE: Snake = Snake { length: 0, pos: (12 * 80 + 37) * 2 };
+use crate::println;
 
 pub fn border(){
     // draw first and last horizontal lines, 
@@ -54,14 +55,8 @@ pub fn border(){
             BUFF_PTR.add(br_c ).write_volatile(0xD9);
             BUFF_PTR.add(br_c + 1).write_volatile(0x0f);
 
-
-
-
-
         }
     }
-
-
 
 
 
@@ -98,7 +93,15 @@ impl Snake {
         Snake { length, pos }
     }
 
+
+
     pub fn right(&mut self){
+        unsafe {
+            if BUFF_PTR.add(self.pos + 2).read_volatile() == 0xB3 {
+            panic!();
+            }
+        }
+
         self.pos = self.pos + 2;
         unsafe {
             BUFF_PTR.add(self.pos).write_volatile(BODY);
@@ -110,6 +113,12 @@ impl Snake {
     }
 
     pub fn left(&mut self){
+        unsafe {
+            if BUFF_PTR.add(self.pos - 2).read_volatile() == 0xB3 {
+            panic!();
+            }
+        }
+
         self.pos = self.pos - 2;
         unsafe {
             BUFF_PTR.add(self.pos).write_volatile(BODY);
@@ -121,7 +130,11 @@ impl Snake {
     }
 
     pub fn up(&mut self){
-        // TODO : add a checker for if buff coords are row 0 
+        unsafe {
+            if BUFF_PTR.add(self.pos - 160).read_volatile() == 0xC4 {
+            panic!();
+            }
+        }
         self.pos = self.pos - 160;
         unsafe {
             BUFF_PTR.add(self.pos).write_volatile(BODY);
@@ -133,7 +146,12 @@ impl Snake {
     }
 
     pub fn down(&mut self){
-        // TODO: add checker for buff coord 24
+        unsafe {
+            if BUFF_PTR.add(self.pos + 160).read_volatile() == 0xC4 {
+            panic!();
+            }
+        }
+
         self.pos = self.pos + 160;
         unsafe {
             BUFF_PTR.add(self.pos).write_volatile(BODY);
