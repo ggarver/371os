@@ -8,6 +8,62 @@ const COL: u8 = 0x09;
 
 static mut _SNAKE: Snake = Snake { length: 0, pos: (12 * 80 + 37) * 2 };
 
+pub fn border(){
+    // draw first and last horizontal lines, 
+        for col in 1..79_usize {
+            let top_line = (0 * 80 + col) * 2;
+            let bot_line = (24 * 80 + col) * 2;
+
+            unsafe {
+                // perhaps I should make this its own function...
+                BUFF_PTR.add(top_line).write_volatile(0xC4);
+                BUFF_PTR.add(top_line + 1).write_volatile(0x0f);
+
+
+                BUFF_PTR.add(bot_line).write_volatile(0xC4);
+                BUFF_PTR.add(bot_line + 1).write_volatile(0x0f);
+            }
+        }
+
+        // R and L lines 
+        for row in 1..24_usize {
+            let r_line = (row * 80 + 79) * 2;
+            let l_line = (row * 80 + 0) * 2;
+
+            unsafe {
+                BUFF_PTR.add(r_line).write_volatile(0xB3);
+                BUFF_PTR.add(r_line + 1).write_volatile(0x0f);
+
+                BUFF_PTR.add(l_line).write_volatile(0xB3);
+                BUFF_PTR.add(l_line + 1).write_volatile(0x0f);
+            }
+
+        }
+        // corners 
+        unsafe {
+            let tl_c = (0 * 80 + 0) * 2;
+            BUFF_PTR.add(tl_c ).write_volatile(0xDA);
+            BUFF_PTR.add(tl_c + 1).write_volatile(0x0f);
+            let bl_c = (24 * 80 + 0) * 2;
+            BUFF_PTR.add(bl_c ).write_volatile(0xC0);
+            BUFF_PTR.add(bl_c + 1).write_volatile(0x0f);
+            let tr_c =(0 * 80 + 79) * 2;
+            BUFF_PTR.add(tr_c ).write_volatile(0xBF);
+            BUFF_PTR.add(tr_c + 1).write_volatile(0x0f);
+            let br_c =(24 * 80 + 79) * 2;
+            BUFF_PTR.add(br_c ).write_volatile(0xD9);
+            BUFF_PTR.add(br_c + 1).write_volatile(0x0f);
+
+
+
+
+
+        }
+    }
+
+
+
+
 
 pub fn get_snake() -> &'static mut Snake {
     unsafe {
@@ -25,6 +81,7 @@ pub struct Snake {
 
 impl Snake {
     pub fn init_snake(&mut self) {
+        border();
         self.length = 1;
 
         // draw initial snake head at center (row 12, col 37)
@@ -43,11 +100,7 @@ impl Snake {
 
     pub fn right(&mut self){
         self.pos = self.pos + 2;
-
-        pub static mut MOV_R: bool = true; 
         unsafe {
-            // Timer::init_timer();
-            // write to the right
             BUFF_PTR.add(self.pos).write_volatile(BODY);
             BUFF_PTR.add(self.pos + self.length).write_volatile(COL);
 
@@ -68,6 +121,7 @@ impl Snake {
     }
 
     pub fn up(&mut self){
+        // TODO : add a checker for if buff coords are row 0 
         self.pos = self.pos - 160;
         unsafe {
             BUFF_PTR.add(self.pos).write_volatile(BODY);
@@ -79,6 +133,7 @@ impl Snake {
     }
 
     pub fn down(&mut self){
+        // TODO: add checker for buff coord 24
         self.pos = self.pos + 160;
         unsafe {
             BUFF_PTR.add(self.pos).write_volatile(BODY);
