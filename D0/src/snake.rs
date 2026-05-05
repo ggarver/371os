@@ -6,6 +6,8 @@ const BODY: u8 = 0xDB;
 const FOOD: u8 = 0x03;
 const BUFF_PTR: *mut u8 = 0xb8000 as *mut u8;
 const COL: u8 = 0x09;
+const MAX_LEN: usize = 100;
+
 
 static mut _SNAKE: Snake = Snake { length: 0, pos: (12 * 80 + 37) * 2 };
 use crate::println;
@@ -43,10 +45,9 @@ pub fn get_snake() -> &'static mut Snake {
     }
 }
 
-#[derive(Default)]
 pub struct Snake {
     pub length: usize,
-    pub pos: usize
+    pub pos: usize,
 }
 
 impl Snake {
@@ -58,7 +59,6 @@ impl Snake {
         // draw initial snake head at center (row 12, col 37)
         let pos = (12 * 80 + 37) * 2;
         write_vga(pos, BODY, COL);
-
         *get_snake() = Snake::new(self.length, self.pos);
     }
 
@@ -66,10 +66,8 @@ impl Snake {
         Snake { length, pos }
     }
 
-
     pub fn right(&mut self){
-        // end game if border
-        unsafe {
+        unsafe { 
             if BUFF_PTR.add(self.pos + 2).read_volatile() == FOOD {
                 self.length += 1
             }
@@ -78,11 +76,11 @@ impl Snake {
                 panic!();
             }
         }
-       
+
         self.pos = self.pos + 2;
         write_vga(self.pos, BODY, COL);
         unsafe {
-            // erase to left
+            // this only erases left 
             BUFF_PTR.add((self.pos - 1) - self.length).write_volatile(0x0);
         }
     }
@@ -108,49 +106,46 @@ impl Snake {
 
     pub fn up(&mut self){
         unsafe {
+            if BUFF_PTR.add(self.pos - 160).read_volatile() == FOOD {
+                self.length += 1;
+            }
+
             if BUFF_PTR.add(self.pos - 160).read_volatile() == 0xC4 {
                 panic!();
             }
         }
-        self.pos = self.pos - 160;
-        unsafe {
-            BUFF_PTR.add(self.pos).write_volatile(BODY);
-            BUFF_PTR.add(self.pos + 1).write_volatile(COL);
 
-            // make this work
-            BUFF_PTR.add(self.pos + 160 + self.length).write_volatile(0x0);
+        self.pos = self.pos - 160;
+        write_vga(self.pos, BODY, COL);
+        unsafe {
+            BUFF_PTR.add(self.pos + (160 * self.length)).write_volatile(0x0);
         }
     }
 
-    pub fn down(&mut self){
+    pub fn down(&mut self) {
+        let next_pos = self.pos + 160;
+
         unsafe {
-            if BUFF_PTR.add(self.pos + 160).read_volatile() == 0xC4 {
+            if BUFF_PTR.add(next_pos).read_volatile() == FOOD {
+                self.length += 1;
+            }
+            if BUFF_PTR.add(next_pos).read_volatile() == 0xC4 {
                 panic!();
             }
         }
 
-        self.pos = self.pos + 160;
+        self.pos = next_pos;
+        write_vga(self.pos, BODY, COL);
         unsafe {
-            BUFF_PTR.add(self.pos).write_volatile(BODY);
-            BUFF_PTR.add(self.pos + 1).write_volatile(COL);
-
-            //erase
-            BUFF_PTR.add((self.pos + self.length) - 160).write_volatile(0x0);
+            BUFF_PTR.add(self.pos - (self.length * 160)).write_volatile(0x0);
         }
-
     }
 
     pub fn food(&mut self){
         let foodspot = (10 * 80 + 30) * 2;
         write_vga(foodspot, FOOD, 0x04);
 
-        if self.pos == foodspot {
-            println!("nom");
-        }
-
     }
-
-
 }
 
 
