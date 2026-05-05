@@ -14,7 +14,7 @@ use osirs::memory;
 use x86_64::structures::paging::Page;
 use x86_64::VirtAddr;
 mod colors;
-
+use osirs::snake::START_POS;
 
 #[unsafe(no_mangle)]
 pub extern "C" fn _start(boot_info: &'static bootloader::BootInfo) -> ! {
@@ -22,7 +22,9 @@ pub extern "C" fn _start(boot_info: &'static bootloader::BootInfo) -> ! {
 
     x86_64::instructions::interrupts::enable();
 
-    let mut snake = Snake { length: 0, pos: (12 * 80 + 37) * 2, tail: 0 };
+    let mut snake = Snake::new(0, START_POS);
+
+    // let mut snake = Snake { length: 0, pos: (12 * 80 + 37) * 2 };
     snake.init_snake();
 
 

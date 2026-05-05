@@ -134,7 +134,7 @@ extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFr
     unsafe {
         // slow down rn - change later
         COUNT += 1;
-        COUNT %= 2;
+        COUNT %= 1;
     }
     if unsafe { COUNT == 0 && TIMER_ACTIVE } {
         let snake = get_snake();
