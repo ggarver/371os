@@ -131,7 +131,12 @@ extern "x86-interrupt" fn breakpoint_handler(_stack_frame: InterruptStackFrame) 
 static mut COUNT: usize = 0;
 
 extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFrame) {
-    if unsafe { TIMER_ACTIVE } {
+    unsafe {
+        // slow down rn - change later
+        COUNT += 1;
+        COUNT %= 2;
+    }
+    if unsafe { COUNT == 0 && TIMER_ACTIVE } {
         let snake = get_snake();
         let dir = CURRENT_DIRECTION.lock();
         match *dir {
