@@ -22,7 +22,7 @@ pub extern "C" fn _start(boot_info: &'static bootloader::BootInfo) -> ! {
 
     x86_64::instructions::interrupts::enable();
 
-    let mut snake = Snake { length: 0, pos: (12 * 80 + 37) * 2 };
+    let mut snake = Snake { length: 0, pos: (12 * 80 + 37) * 2, tail: 0 };
     snake.init_snake();
 
 
